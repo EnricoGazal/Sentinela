@@ -1,0 +1,84 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sentinela"
+version = "1.0.0"
+description = "Triagem automatizada de alertas de segurança (trabalho final de Padrões e Arquitetura de Software, PUC-Campinas)"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [{ name = "Enrico Gazal Regazzini" }]
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "httpx>=0.27",
+    "ruff==0.16.9",
+]
+
+[project.scripts]
+sentinela = "sentinela.entrada.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "."]
+addopts = "-q"
+
+# ---------------------------------------------------------------------------
+# Linter e formatador: ruff (ruff check + ruff format)
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests", "scripts", "simuladores"]
+# Os trechos de código na documentação são recortes (com "..."), não arquivos
+# Python completos; o script scripts/docs.py confere cada linha contra o código.
+extend-exclude = ["*.md"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # pycodestyle: estilo básico
+    "F",        # pyflakes: nomes não usados, imports quebrados
+    "I",        # isort: ordem dos imports
+    "N",        # pep8-naming: convenção de nomes
+    "UP",       # pyupgrade: sintaxe moderna do Python 3.12
+    "B",        # flake8-bugbear: armadilhas comuns
+    "SIM",      # flake8-simplify: código mais simples
+    "C90",      # mccabe: complexidade ciclomática
+    "PLR",      # pylint refactor: funções grandes, muitos parâmetros
+    "BLE",      # blind except: proíbe 'except Exception' sem justificativa
+    "RET",      # flake8-return: retornos consistentes
+    "ERA",      # eradicate: proíbe código comentado
+    "PT",       # flake8-pytest-style
+    "RUF",      # regras próprias do ruff
+]
+
+ignore = [
+    # Os erros seguem o português: o prefixo "Erro" (ErroSentinela) cumpre o papel
+    # do sufixo "Error" que a regra N818 pede para nomes em inglês.
+    "N818",
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 6
+
+[tool.ruff.lint.pylint]
+max-args = 5
+max-branches = 8
+max-returns = 4
+max-statements = 25
+
+[tool.ruff.lint.per-file-ignores]
+# Testes usam valores literais de propósito (números esperados nas asserções).
+"tests/**" = ["PLR2004"]
+
+[tool.ruff.format]
+quote-style = "double"
